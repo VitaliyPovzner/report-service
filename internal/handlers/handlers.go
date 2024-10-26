@@ -32,6 +32,8 @@ func ReportHandler(w http.ResponseWriter, r *http.Request) {
 	switch reportType {
 	case "example-report":
 		config = &models.GenericConfig{}
+	case "another-report":
+		config = &models.AnotherConfig{}
 	default:
 		http.Error(w, "Invalid report type", http.StatusBadRequest)
 		return

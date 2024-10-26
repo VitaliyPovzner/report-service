@@ -1,11 +1,17 @@
 package models
 
 import (
-	"time"
 	"fmt"
+	"time"
 )
 
 type FlexibleDateTime time.Time
+
+type Filter struct {
+	Operand  string `json:"operand"`
+	Operator string `json:"operator"`
+	Value    string `json:"value"`
+}
 
 const (
 	dateFormat     = "2006-01-02"
@@ -34,11 +40,11 @@ func (d FlexibleDateTime) Format(layout string) string {
 	return time.Time(d).Format(layout)
 }
 
-
 type AggregationRequest struct {
 	Dimensions []string         `json:"dimensions"`
 	Metrics    []string         `json:"metrics"`
 	DateFrom   FlexibleDateTime `json:"dateFrom"`
 	DateTo     FlexibleDateTime `json:"dateTo"`
+	Filters    []Filter         `json:"filters"`
 	Breakdown  string           `json:"breakdown,omitempty"`
 }

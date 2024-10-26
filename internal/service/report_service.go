@@ -4,6 +4,7 @@ import (
     "fmt"
     "report-service/internal/models"
     "strings"
+    "report-service/internal/utils"
 )
 
 func GenerateReport(params models.AggregationRequest, config models.MetricsConfig) ([]map[string]interface{}, error) {
@@ -30,7 +31,7 @@ func generateSQL(params models.AggregationRequest, config models.MetricsConfig) 
     query := fmt.Sprintf(
         "SELECT %s FROM %s WHERE datetime BETWEEN '%s' AND '%s' %s %s",
         selectClause,
-        tableName, // Use the tableName variable here
+        tableName, 
         params.DateFrom.Format("2006-01-02"),
         params.DateTo.Format("2006-01-02"),
         groupByClause,
@@ -63,7 +64,6 @@ func generateSelectClause(params models.AggregationRequest, config models.Metric
     return strings.Join(selectClauses, ", ")
 }
 
-// generateGroupByClause constructs the GROUP BY part of the SQL query.
 func generateGroupByClause(params models.AggregationRequest, config models.MetricsConfig) string {
     groupByClauses := []string{}
 
@@ -77,7 +77,51 @@ func generateGroupByClause(params models.AggregationRequest, config models.Metri
 
 
 func generateHavingClause(params models.AggregationRequest, config models.MetricsConfig) string {
+    havingClauses := []string{}
 
+    operatorMap := map[string]string{
+        "eq":       "=",
+        "not_eq":   "<>",
+        "less_eq":  "<=",
+        "less":     "<",
+        "gr_eq":    ">=",
+        "gr":       ">",
+        "cont":     "LIKE",
+        "not_cont": "NOT LIKE",
+        "starts":   "LIKE",
+        "in":       "IN",
+        "not_in":   "NOT IN",
+    }
 
-    return "" 
+    for _, filter := range params.Filters {
+        condition := utils.BuildFilterCondition(filter.Operand, filter.Operator, filter.Value, operatorMap)
+        havingClauses = append(havingClauses, condition)
+    }
+
+    if len(havingClauses) > 0 {
+        return "HAVING " + strings.Join(havingClauses, " AND ")
+    }
+
+    return ""
 }
+
+
+
+
+
+// func isNumeric(value string) bool {
+//     _, err := strconv.ParseFloat(value, 64)
+//     return err == nil
+// }
+
+// func isArray(value string) bool {
+//     return strings.Contains(value, ",")
+// }
+
+// func formatValues(value string) string {
+//     values := strings.Split(value, ",")
+//     for i, v := range values {
+//         values[i] = fmt.Sprintf("'%s'", strings.TrimSpace(v))
+//     }
+//     return strings.Join(values, ", ")
+// }

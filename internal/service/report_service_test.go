@@ -3,14 +3,15 @@ package service
 import (
     "testing"
     "time"
+	"report-service/internal/models"
 )
 
 func TestGenerateReport(t *testing.T) {
-    params := QueryParams{
+    params := models.AggregationRequest{
         Dimensions: []string{"dimension1"},
         Metrics:    []string{"metric1"},
-        DateFrom:   time.Now().AddDate(0, 0, -1), // 1 day ago
-        DateTo:     time.Now(),
+        DateFrom:   models.FlexibleDateTime(time.Now().AddDate(0, 0, -1)), 
+        DateTo:     models.FlexibleDateTime(time.Now()),
         Breakdown:  "daily",
     }
 

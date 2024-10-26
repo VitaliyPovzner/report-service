@@ -1,18 +1,11 @@
 package service
 
 import (
-    "time"
+    "report-service/internal/models"
 )
 
-type QueryParams struct {
-    Dimensions []string
-    Metrics    []string
-    DateFrom   time.Time
-    DateTo     time.Time
-    Breakdown  string
-}
 
-func GenerateReport(params QueryParams) ([]map[string]interface{}, error) {
+func GenerateReport(params models.AggregationRequest) ([]map[string]interface{}, error) {
 	// Returning dummy data for now
     return []map[string]interface{}{
         {"dimension1": "value1", "metric1": 100},

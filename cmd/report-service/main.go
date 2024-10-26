@@ -1,5 +1,3 @@
-// cmd/main.go
-
 package main
 
 import (
@@ -7,6 +5,8 @@ import (
 	"net/http"
 	"report-service/internal/database"
 	"report-service/internal/handlers"
+
+	"github.com/gorilla/mux"
 )
 
 func main() {
@@ -14,9 +14,11 @@ func main() {
 		log.Fatalf("Could not connect to database: %v", err)
 	}
 
-	http.HandleFunc("/report", handlers.ReportHandler)
+	r := mux.NewRouter()
+	r.HandleFunc("/report/{reportType}", handlers.ReportHandler)
+
 	log.Println("Starting server on :3000")
-	if err := http.ListenAndServe(":3000", nil); err != nil {
+	if err := http.ListenAndServe(":3000", r); err != nil {
 		log.Fatalf("Could not start server: %v", err)
 	}
 }

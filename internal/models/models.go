@@ -30,6 +30,10 @@ func (d *FlexibleDateTime) UnmarshalJSON(b []byte) error {
 
 	return fmt.Errorf("could not parse date or datetime: %v", err)
 }
+func (d FlexibleDateTime) Format(layout string) string {
+	return time.Time(d).Format(layout)
+}
+
 
 type AggregationRequest struct {
 	Dimensions []string         `json:"dimensions"`

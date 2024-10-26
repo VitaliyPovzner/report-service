@@ -25,7 +25,7 @@ func generateSQL(params models.AggregationRequest, config models.MetricsConfig) 
     tableName:= config.GetTableName()
     selectClause := generateSelectClause(params, config)
     groupByClause := generateGroupByClause(params, config)
-    havingClause := generateHavingClause(params, config) 
+    havingClause := generateHavingClause(params) 
 
     // Build the full SQL query
     query := fmt.Sprintf(
@@ -76,7 +76,7 @@ func generateGroupByClause(params models.AggregationRequest, config models.Metri
 }
 
 
-func generateHavingClause(params models.AggregationRequest, config models.MetricsConfig) string {
+func generateHavingClause(params models.AggregationRequest) string {
     havingClauses := []string{}
 
     operatorMap := map[string]string{
@@ -104,24 +104,3 @@ func generateHavingClause(params models.AggregationRequest, config models.Metric
 
     return ""
 }
-
-
-
-
-
-// func isNumeric(value string) bool {
-//     _, err := strconv.ParseFloat(value, 64)
-//     return err == nil
-// }
-
-// func isArray(value string) bool {
-//     return strings.Contains(value, ",")
-// }
-
-// func formatValues(value string) string {
-//     values := strings.Split(value, ",")
-//     for i, v := range values {
-//         values[i] = fmt.Sprintf("'%s'", strings.TrimSpace(v))
-//     }
-//     return strings.Join(values, ", ")
-// }

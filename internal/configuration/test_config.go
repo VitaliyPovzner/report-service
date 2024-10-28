@@ -1,4 +1,4 @@
-package models
+package configuration
 
 type TestMetricsConfig struct{}
 

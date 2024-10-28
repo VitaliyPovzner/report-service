@@ -3,11 +3,12 @@ package service
 import (
     "fmt"
     "report-service/internal/models"
+    "report-service/internal/configuration"
     "strings"
     "report-service/internal/utils"
 )
 
-func GenerateReport(params models.AggregationRequest, config models.MetricsConfig) ([]map[string]interface{}, error) {
+func GenerateReport(params models.AggregationRequest, config configuration.MetricsConfig) ([]map[string]interface{}, error) {
     sql, err := generateSQL(params, config)
     if err != nil {
         return nil, err
@@ -21,7 +22,7 @@ func GenerateReport(params models.AggregationRequest, config models.MetricsConfi
 }
 
 
-func generateSQL(params models.AggregationRequest, config models.MetricsConfig) (string, error) {
+func generateSQL(params models.AggregationRequest, config configuration.MetricsConfig) (string, error) {
     tableName:= config.GetTableName()
     selectClause := generateSelectClause(params, config)
     groupByClause := generateGroupByClause(params, config)
@@ -42,7 +43,7 @@ func generateSQL(params models.AggregationRequest, config models.MetricsConfig) 
 }
 
 // generateSelectClause constructs the SELECT part of the SQL query.
-func generateSelectClause(params models.AggregationRequest, config models.MetricsConfig) string {
+func generateSelectClause(params models.AggregationRequest, config configuration.MetricsConfig) string {
     selectClauses := []string{}
 
     // Add metrics
@@ -64,7 +65,7 @@ func generateSelectClause(params models.AggregationRequest, config models.Metric
     return strings.Join(selectClauses, ", ")
 }
 
-func generateGroupByClause(params models.AggregationRequest, config models.MetricsConfig) string {
+func generateGroupByClause(params models.AggregationRequest, config configuration.MetricsConfig) string {
     groupByClauses := []string{}
 
 

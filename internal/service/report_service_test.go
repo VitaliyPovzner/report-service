@@ -4,6 +4,7 @@ import (
     "testing"
     "time"
     "report-service/internal/models"
+    "report-service/internal/configuration"
 )
 
 func TestGenerateReport(t *testing.T) {
@@ -15,7 +16,7 @@ func TestGenerateReport(t *testing.T) {
         Filters:    []models.Filter{{Operand: "metric1", Operator: "gr_eq", Value: "100"}},
     }
 
-    config := models.TestMetricsConfig{}
+    config := configuration.TestMetricsConfig{}
 
     report, err := GenerateReport(params, config)
     if err != nil {
@@ -41,7 +42,7 @@ func TestGenerateSQL(t *testing.T) {
 		Breakdown: "daily",
     }
 
-    config := models.TestMetricsConfig{}
+    config := configuration.TestMetricsConfig{}
 
     sql, err := generateSQL(params, config)
     if err != nil {
@@ -61,7 +62,7 @@ func TestGenerateSelectClause(t *testing.T) {
         Metrics:    []string{"metric1"},
     }
 
-    config := models.TestMetricsConfig{}
+    config := configuration.TestMetricsConfig{}
 
     selectClause := generateSelectClause(params, config)
 
@@ -76,7 +77,7 @@ func TestGenerateGroupByClause(t *testing.T) {
         Breakdown: "daily",
     }
 
-    config := models.TestMetricsConfig{}
+    config := configuration.TestMetricsConfig{}
 
     groupByClause := generateGroupByClause(params, config)
 
@@ -111,7 +112,7 @@ func TestGenerateSQLWithComplexParams(t *testing.T) {
         Breakdown: "monthly",
     }
 
-    config := models.TestMetricsConfig{}
+    config := configuration.TestMetricsConfig{}
 
     sql, err := generateSQL(params, config)
     if err != nil {

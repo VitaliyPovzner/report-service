@@ -3,11 +3,11 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/gorilla/mux"
 	"net/http"
+	"report-service/internal/configuration"
 	"report-service/internal/models"
 	"report-service/internal/service"
-
-	"github.com/gorilla/mux"
 )
 
 func ReportHandler(w http.ResponseWriter, r *http.Request) {
@@ -28,12 +28,12 @@ func ReportHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	reportType := vars["reportType"]
 
-	var config models.MetricsConfig
+	var config configuration.MetricsConfig
 	switch reportType {
 	case "example-report":
-		config = &models.GenericConfig{}
+		config = &configuration.GenericConfig{}
 	case "another-report":
-		config = &models.AnotherConfig{}
+		config = &configuration.AnotherConfig{}
 	default:
 		http.Error(w, "Invalid report type", http.StatusBadRequest)
 		return

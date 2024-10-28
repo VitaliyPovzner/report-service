@@ -4,6 +4,7 @@ import (
     "fmt"
     "report-service/internal/models"
     "report-service/internal/configuration"
+    "report-service/internal/database"
     "strings"
     "report-service/internal/utils"
 )
@@ -14,11 +15,14 @@ func GenerateReport(params models.AggregationRequest, config configuration.Repor
         return nil, err
     }
     fmt.Print(sql)
+
+    var result []map[string]interface{}
+    if err := database.DB.Raw(sql).Scan(&result).Error; err != nil {
+        return nil, err
+    }
     
     // Here we return dummy data for demonstration
-    return []map[string]interface{}{
-        {"dimension1": sql, "metric1": 100},
-    }, nil
+    return result, nil
 }
 
 
@@ -47,16 +51,21 @@ func generateSQL(params models.AggregationRequest, config configuration.ReportCo
 func generateGroupByClause(params models.AggregationRequest, config configuration.ReportConfig) string {
     groupByClauses := []string{}
 
-    breakdown,err:=config.GetBreakdownByDate(params.Breakdown)
-    if err!=nil {
-        return ""
+    breakdown, err := config.GetBreakdownByDate(params.Breakdown)
+    if err == nil && breakdown != "" {
+        groupByClauses = append(groupByClauses, breakdown)
     }
 
-    if breakdownSQL := breakdown; breakdownSQL != "" {
-        groupByClauses = append(groupByClauses, breakdownSQL)
+    // Add each dimension from params.Dimensions
+
+    groupByClauses = append(groupByClauses, params.Dimensions...)
+
+    // Only add "GROUP BY" if there are any groupings
+    if len(groupByClauses) > 0 {
+        return "GROUP BY " + strings.Join(groupByClauses, ", ")
     }
 
-    return "GROUP BY " + strings.Join(groupByClauses, ", ")
+    return ""
 }
 
 

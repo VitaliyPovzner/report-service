@@ -5,11 +5,11 @@ type BaseConfig struct{}
 func (b *BaseConfig) GetBreakdownByDate(breakdown string) (string, error) {
 	switch breakdown {
 	case "hourly":
-		return "est_datetime", nil
+		return "datetime", nil
 	case "daily":
-		return "DATE(est_datetime)", nil
+		return "DATE(datetime)", nil
 	case "monthly":
-		return "DATE_FORMAT(est_datetime, '%Y-%m')", nil
+		return "DATE_FORMAT(datetime, '%Y-%m')", nil
 	default:
 		return "", nil
 	}

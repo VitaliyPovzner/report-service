@@ -8,7 +8,7 @@ import (
     "report-service/internal/utils"
 )
 
-func GenerateReport(params models.AggregationRequest, config configuration.MetricsConfig) ([]map[string]interface{}, error) {
+func GenerateReport(params models.AggregationRequest, config configuration.ReportConfig) ([]map[string]interface{}, error) {
     sql, err := generateSQL(params, config)
     if err != nil {
         return nil, err
@@ -22,7 +22,7 @@ func GenerateReport(params models.AggregationRequest, config configuration.Metri
 }
 
 
-func generateSQL(params models.AggregationRequest, config configuration.MetricsConfig) (string, error) {
+func generateSQL(params models.AggregationRequest, config configuration.ReportConfig) (string, error) {
     tableName:= config.GetTableName()
     selectClause := generateSelectClause(params, config)
     groupByClause := generateGroupByClause(params, config)
@@ -42,34 +42,17 @@ func generateSQL(params models.AggregationRequest, config configuration.MetricsC
     return query, nil
 }
 
-// generateSelectClause constructs the SELECT part of the SQL query.
-func generateSelectClause(params models.AggregationRequest, config configuration.MetricsConfig) string {
-    selectClauses := []string{}
 
-    // Add metrics
-    for _, metric := range params.Metrics {
-        if sql, exists := config.GetMetrics()[metric]; exists {
-            selectClauses = append(selectClauses, sql+" AS "+metric)
-        }
-    }
 
-    // Add dimensions
-    for _, dimension := range params.Dimensions {
-        if sql, exists := config.GetCustomDimensions()[dimension]; exists {
-            selectClauses = append(selectClauses, sql+" AS "+dimension)
-        } else {
-            selectClauses = append(selectClauses, dimension)
-        }
-    }
-
-    return strings.Join(selectClauses, ", ")
-}
-
-func generateGroupByClause(params models.AggregationRequest, config configuration.MetricsConfig) string {
+func generateGroupByClause(params models.AggregationRequest, config configuration.ReportConfig) string {
     groupByClauses := []string{}
 
+    breakdown,err:=config.GetBreakdownByDate(params.Breakdown)
+    if err!=nil {
+        return ""
+    }
 
-    if breakdownSQL := config.GetBreakdownByDate(params.Breakdown); breakdownSQL != "" {
+    if breakdownSQL := breakdown; breakdownSQL != "" {
         groupByClauses = append(groupByClauses, breakdownSQL)
     }
 
@@ -104,4 +87,32 @@ func generateHavingClause(params models.AggregationRequest) string {
     }
 
     return ""
+}
+
+
+func generateSelectClause(params models.AggregationRequest, config configuration.ReportConfig) string {
+    selectClauses := []string{}
+
+    // Add metrics
+    metricsMap, _ := config.GetMetrics()
+   
+    for _, metric := range params.Metrics {
+        if sql, exists := metricsMap[metric]; exists {
+            selectClauses = append(selectClauses, sql+" AS "+metric)
+        }
+    }
+
+    // Add dimensions
+    customDimensions, _ := config.GetCustomDimensions()
+ 
+    for _, dimension := range params.Dimensions {
+        if sql, exists := customDimensions[dimension]; exists {
+            selectClauses = append(selectClauses, sql+" AS "+dimension)
+        } else {
+            selectClauses = append(selectClauses, dimension)
+        }
+    }
+    
+
+    return strings.Join(selectClauses, ", ")
 }

@@ -1,28 +1,30 @@
 package configuration
 
-type TestMetricsConfig struct{}
+import "fmt"
 
-func (t TestMetricsConfig) GetTableName() string {
-    return "test_table"
+type TestConfig struct{}
+
+func (t TestConfig) GetTableName() string {
+	return "test_table"
 }
 
-func (t TestMetricsConfig) GetMetrics() map[string]string {
-    return map[string]string{"metric1": "SUM(metric1)"}
+func (t TestConfig) GetMetrics() (map[string]string, error) {
+	return map[string]string{"metric1": "SUM(metric1)"}, nil
 }
 
-func (t TestMetricsConfig) GetCustomDimensions() map[string]string {
-    return map[string]string{"dimension100": "dimension100"}
+func (t TestConfig) GetCustomDimensions() (map[string]string, error) {
+	return map[string]string{"dimension100": "dimension100"}, nil
 }
 
-func (t TestMetricsConfig) GetBreakdownByDate(breakdown string) string {
+func (t TestConfig) GetBreakdownByDate(breakdown string) (string, error) {
 	switch breakdown {
 	case "hourly":
-		return "date"
+		return "date", nil
 	case "daily":
-		return "DATE(date)"
+		return "DATE(date)", nil
 	case "monthly":
-		return "DATE_FORMAT(date, '%Y-%m')"
+		return "DATE_FORMAT(date, '%Y-%m')", nil
 	default:
-		return ""
+		return "", fmt.Errorf("unknown breakdown type: %s", breakdown)
 	}
 }

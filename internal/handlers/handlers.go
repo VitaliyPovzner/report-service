@@ -18,27 +18,21 @@ func ReportHandler(w http.ResponseWriter, r *http.Request) {
 
 	var req models.AggregationRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		fmt.Println("Decode error: ", err)
+		fmt.Println("Decode error:", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	fmt.Println("Request: ", req)
+	fmt.Println("Request:", req)
 
 	vars := mux.Vars(r)
 	reportType := vars["reportType"]
 
-	var config configuration.MetricsConfig
-	switch reportType {
-	case "example-report":
-		config = &configuration.GenericConfig{}
-	case "another-report":
-		config = &configuration.AnotherConfig{}
-	default:
-		http.Error(w, "Invalid report type", http.StatusBadRequest)
+	config, err := configuration.NewReportConfig(reportType)
+	if err != nil {
+		http.Error(w, "Invalid report type: "+err.Error(), http.StatusBadRequest)
 		return
 	}
-
 	result, err := service.GenerateReport(req, config)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -46,5 +40,7 @@ func ReportHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(result)
+	if err := json.NewEncoder(w).Encode(result); err != nil {
+		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+	}
 }
